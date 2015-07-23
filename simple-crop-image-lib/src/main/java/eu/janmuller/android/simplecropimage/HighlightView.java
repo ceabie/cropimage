@@ -17,6 +17,7 @@
 package eu.janmuller.android.simplecropimage;
 
 
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
@@ -35,6 +36,7 @@ class HighlightView {
 
     @SuppressWarnings("unused")
     private static final String TAG = "HighlightView";
+    public static final int BOUND_COLOR = 0xFFFF8A00;
     View mContext;  // The View displaying the image.
 
     public static final int GROW_NONE = (1 << 0);
@@ -43,6 +45,10 @@ class HighlightView {
     public static final int GROW_TOP_EDGE = (1 << 3);
     public static final int GROW_BOTTOM_EDGE = (1 << 4);
     public static final int MOVE = (1 << 5);
+    private int mWidthWidth;
+    private int mWidthHeight;
+    private int mHeightHeight;
+    private int mHeightWidth;
 
     public HighlightView(View ctx) {
 
@@ -50,14 +56,15 @@ class HighlightView {
     }
 
     private void init() {
+        Resources resources = mContext.getResources();
+        mResizeDrawableWidth = resources.getDrawable(R.drawable.camera_crop_width);
+        mResizeDrawableHeight = resources.getDrawable(R.drawable.camera_crop_height);
+        mResizeDrawableDiagonal = resources.getDrawable(R.drawable.indicator_autocrop);
 
-        android.content.res.Resources resources = mContext.getResources();
-        mResizeDrawableWidth =
-                resources.getDrawable(R.drawable.camera_crop_width);
-        mResizeDrawableHeight =
-                resources.getDrawable(R.drawable.camera_crop_height);
-        mResizeDrawableDiagonal =
-                resources.getDrawable(R.drawable.indicator_autocrop);
+        mWidthWidth = mResizeDrawableWidth.getIntrinsicWidth() / 2;
+        mWidthHeight = mResizeDrawableWidth.getIntrinsicHeight() / 2;
+        mHeightHeight = mResizeDrawableHeight.getIntrinsicHeight() / 2;
+        mHeightWidth = mResizeDrawableHeight.getIntrinsicWidth() / 2;
     }
 
     boolean mIsFocused;
@@ -130,72 +137,74 @@ class HighlightView {
 
                 path.addRect(new RectF(mDrawRect), Path.Direction.CW);
 
-                mOutlinePaint.setColor(0xFFFF8A00);
-
+                mOutlinePaint.setColor(BOUND_COLOR);
             }
-
 
             canvas.drawPath(path, mOutlinePaint);
 
-            if (mMode == ModifyMode.Grow) {
-                if (mCircle) {
-                    int width = mResizeDrawableDiagonal.getIntrinsicWidth();
-                    int height = mResizeDrawableDiagonal.getIntrinsicHeight();
+            if (mCircle) {
+                int width = mResizeDrawableDiagonal.getIntrinsicWidth();
+                int height = mResizeDrawableDiagonal.getIntrinsicHeight();
 
-                    int d = (int) Math.round(Math.cos(/*45deg*/Math.PI / 4D)
-                            * (mDrawRect.width() / 2D));
-                    int x = mDrawRect.left
-                            + (mDrawRect.width() / 2) + d - width / 2;
-                    int y = mDrawRect.top
-                            + (mDrawRect.height() / 2) - d - height / 2;
-                    mResizeDrawableDiagonal.setBounds(x, y,
-                            x + mResizeDrawableDiagonal.getIntrinsicWidth(),
-                            y + mResizeDrawableDiagonal.getIntrinsicHeight());
-                    mResizeDrawableDiagonal.draw(canvas);
+                int d = (int) Math.round(Math.cos(/*45deg*/Math.PI / 4D)
+                        * (mDrawRect.width() / 2D));
+                int x = mDrawRect.left
+                        + (mDrawRect.width() / 2) + d - width / 2;
+                int y = mDrawRect.top
+                        + (mDrawRect.height() / 2) - d - height / 2;
+                mResizeDrawableDiagonal.setBounds(x, y,
+                        x + mResizeDrawableDiagonal.getIntrinsicWidth(),
+                        y + mResizeDrawableDiagonal.getIntrinsicHeight());
+
+                if (mMode == ModifyMode.Grow) {
+                    mResizeDrawableDiagonal.setAlpha(255);
                 } else {
-                    int left = mDrawRect.left + 1;
-                    int right = mDrawRect.right + 1;
-                    int top = mDrawRect.top + 4;
-                    int bottom = mDrawRect.bottom + 3;
-
-                    int widthWidth =
-                            mResizeDrawableWidth.getIntrinsicWidth() / 2;
-                    int widthHeight =
-                            mResizeDrawableWidth.getIntrinsicHeight() / 2;
-                    int heightHeight =
-                            mResizeDrawableHeight.getIntrinsicHeight() / 2;
-                    int heightWidth =
-                            mResizeDrawableHeight.getIntrinsicWidth() / 2;
-
-                    int xMiddle = mDrawRect.left
-                            + ((mDrawRect.right - mDrawRect.left) / 2);
-                    int yMiddle = mDrawRect.top
-                            + ((mDrawRect.bottom - mDrawRect.top) / 2);
-
-                    mResizeDrawableWidth.setBounds(left - widthWidth,
-                            yMiddle - widthHeight,
-                            left + widthWidth,
-                            yMiddle + widthHeight);
-                    mResizeDrawableWidth.draw(canvas);
-
-                    mResizeDrawableWidth.setBounds(right - widthWidth,
-                            yMiddle - widthHeight,
-                            right + widthWidth,
-                            yMiddle + widthHeight);
-                    mResizeDrawableWidth.draw(canvas);
-
-                    mResizeDrawableHeight.setBounds(xMiddle - heightWidth,
-                            top - heightHeight,
-                            xMiddle + heightWidth,
-                            top + heightHeight);
-                    mResizeDrawableHeight.draw(canvas);
-
-                    mResizeDrawableHeight.setBounds(xMiddle - heightWidth,
-                            bottom - heightHeight,
-                            xMiddle + heightWidth,
-                            bottom + heightHeight);
-                    mResizeDrawableHeight.draw(canvas);
+                    mResizeDrawableDiagonal.setAlpha(120);
                 }
+
+                mResizeDrawableDiagonal.draw(canvas);
+            } else {
+                int left = mDrawRect.left + 1;
+                int right = mDrawRect.right + 1;
+                int top = mDrawRect.top + 4;
+                int bottom = mDrawRect.bottom + 3;
+
+                int xMiddle = mDrawRect.left
+                        + ((mDrawRect.right - mDrawRect.left) / 2);
+                int yMiddle = mDrawRect.top
+                        + ((mDrawRect.bottom - mDrawRect.top) / 2);
+
+                if (mMode == ModifyMode.Grow) {
+                    mResizeDrawableWidth.setAlpha(255);
+                    mResizeDrawableHeight.setAlpha(255);
+                } else {
+                    mResizeDrawableWidth.setAlpha(120);
+                    mResizeDrawableHeight.setAlpha(120);
+                }
+
+                mResizeDrawableWidth.setBounds(left - mWidthWidth,
+                        yMiddle - mWidthHeight,
+                        left + mWidthWidth,
+                        yMiddle + mWidthHeight);
+                mResizeDrawableWidth.draw(canvas);
+
+                mResizeDrawableWidth.setBounds(right - mWidthWidth,
+                        yMiddle - mWidthHeight,
+                        right + mWidthWidth,
+                        yMiddle + mWidthHeight);
+                mResizeDrawableWidth.draw(canvas);
+
+                mResizeDrawableHeight.setBounds(xMiddle - mHeightWidth,
+                        top - mHeightHeight,
+                        xMiddle + mHeightWidth,
+                        top + mHeightHeight);
+                mResizeDrawableHeight.draw(canvas);
+
+                mResizeDrawableHeight.setBounds(xMiddle - mHeightWidth,
+                        bottom - mHeightHeight,
+                        xMiddle + mHeightWidth,
+                        bottom + mHeightHeight);
+                mResizeDrawableHeight.draw(canvas);
             }
         }
     }
@@ -322,7 +331,7 @@ class HighlightView {
 
         mDrawRect = computeLayout();
         invalRect.union(mDrawRect);
-        invalRect.inset(-10, -10);
+        invalRect.inset(-mWidthWidth, -mHeightHeight);
         mContext.invalidate(invalRect);
     }
 

@@ -1,11 +1,5 @@
 package eu.janmuller.android.simplecropimage.example;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
@@ -18,6 +12,13 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 import eu.janmuller.android.simplecropimage.CropImage;
 
 public class MainActivity extends Activity {
@@ -107,6 +108,7 @@ public class MainActivity extends Activity {
 
         intent.putExtra(CropImage.ASPECT_X, 3);
         intent.putExtra(CropImage.ASPECT_Y, 2);
+//        intent.putExtra(CropImage.CIRCLE_CROP, "1");
 
         startActivityForResult(intent, REQUEST_CODE_CROP_IMAGE);
     }
