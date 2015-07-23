@@ -17,7 +17,13 @@
 package eu.janmuller.android.simplecropimage;
 
 
-import android.graphics.*;
+import android.graphics.Canvas;
+import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.Rect;
+import android.graphics.RectF;
+import android.graphics.Region;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 
@@ -31,12 +37,12 @@ class HighlightView {
     private static final String TAG = "HighlightView";
     View mContext;  // The View displaying the image.
 
-    public static final int GROW_NONE        = (1 << 0);
-    public static final int GROW_LEFT_EDGE   = (1 << 1);
-    public static final int GROW_RIGHT_EDGE  = (1 << 2);
-    public static final int GROW_TOP_EDGE    = (1 << 3);
+    public static final int GROW_NONE = (1 << 0);
+    public static final int GROW_LEFT_EDGE = (1 << 1);
+    public static final int GROW_RIGHT_EDGE = (1 << 2);
+    public static final int GROW_TOP_EDGE = (1 << 3);
     public static final int GROW_BOTTOM_EDGE = (1 << 4);
-    public static final int MOVE             = (1 << 5);
+    public static final int MOVE = (1 << 5);
 
     public HighlightView(View ctx) {
 
@@ -77,7 +83,7 @@ class HighlightView {
         if (mHidden) {
             return;
         }
-        
+
         Path path = new Path();
         if (!hasFocus()) {
             mOutlinePaint.setColor(0xFF000000);
@@ -86,8 +92,8 @@ class HighlightView {
             Rect viewDrawingRect = new Rect();
             mContext.getDrawingRect(viewDrawingRect);
             if (mCircle) {
-				
-		canvas.save();
+
+                canvas.save();
 
                 float width = mDrawRect.width();
                 float height = mDrawRect.height();
@@ -95,41 +101,40 @@ class HighlightView {
                         mDrawRect.top + (height / 2),
                         width / 2,
                         Path.Direction.CW);
-				mOutlinePaint.setColor(0xFFEF04D6);
-                
-		canvas.clipPath(path, Region.Op.DIFFERENCE);
-            	canvas.drawRect(viewDrawingRect,
-                    hasFocus() ? mFocusPaint : mNoFocusPaint);
+                mOutlinePaint.setColor(0xFFEF04D6);
 
-            	canvas.restore();
+                canvas.clipPath(path, Region.Op.DIFFERENCE);
+                canvas.drawRect(viewDrawingRect,
+                        hasFocus() ? mFocusPaint : mNoFocusPaint);
 
+                canvas.restore();
 
             } else {
-				
-		Rect topRect = new Rect(viewDrawingRect.left, viewDrawingRect.top, viewDrawingRect.right, mDrawRect.top );
-	        if (topRect.width() > 0 && topRect.height() > 0) {
-	        	canvas.drawRect(topRect, hasFocus() ? mFocusPaint : mNoFocusPaint);
-            	}
-	        Rect bottomRect = new Rect(viewDrawingRect.left, mDrawRect.bottom, viewDrawingRect.right, viewDrawingRect.bottom);
-	        if (bottomRect.width() > 0 && bottomRect.height() > 0) {
-	        	canvas.drawRect(bottomRect, hasFocus() ? mFocusPaint : mNoFocusPaint);
-            	}
-            	Rect leftRect = new Rect(viewDrawingRect.left, topRect.bottom, mDrawRect.left, bottomRect.top);
-	        if (leftRect.width() > 0 && leftRect.height() > 0) {
-	        	canvas.drawRect(leftRect, hasFocus() ? mFocusPaint : mNoFocusPaint);
-    		}
-            	Rect rightRect = new Rect(mDrawRect.right, topRect.bottom, viewDrawingRect.right, bottomRect.top);
-	        if (rightRect.width() > 0 && rightRect.height() > 0) {
-	                canvas.drawRect(rightRect, hasFocus() ? mFocusPaint : mNoFocusPaint);
-	        }
+
+                Rect topRect = new Rect(viewDrawingRect.left, viewDrawingRect.top, viewDrawingRect.right, mDrawRect.top);
+                if (topRect.width() > 0 && topRect.height() > 0) {
+                    canvas.drawRect(topRect, hasFocus() ? mFocusPaint : mNoFocusPaint);
+                }
+                Rect bottomRect = new Rect(viewDrawingRect.left, mDrawRect.bottom, viewDrawingRect.right, viewDrawingRect.bottom);
+                if (bottomRect.width() > 0 && bottomRect.height() > 0) {
+                    canvas.drawRect(bottomRect, hasFocus() ? mFocusPaint : mNoFocusPaint);
+                }
+                Rect leftRect = new Rect(viewDrawingRect.left, topRect.bottom, mDrawRect.left, bottomRect.top);
+                if (leftRect.width() > 0 && leftRect.height() > 0) {
+                    canvas.drawRect(leftRect, hasFocus() ? mFocusPaint : mNoFocusPaint);
+                }
+                Rect rightRect = new Rect(mDrawRect.right, topRect.bottom, viewDrawingRect.right, bottomRect.top);
+                if (rightRect.width() > 0 && rightRect.height() > 0) {
+                    canvas.drawRect(rightRect, hasFocus() ? mFocusPaint : mNoFocusPaint);
+                }
 
                 path.addRect(new RectF(mDrawRect), Path.Direction.CW);
-            
-		mOutlinePaint.setColor(0xFFFF8A00);    
+
+                mOutlinePaint.setColor(0xFFFF8A00);
 
             }
-            
-			
+
+
             canvas.drawPath(path, mOutlinePaint);
 
             if (mMode == ModifyMode.Grow) {
@@ -436,7 +441,7 @@ class HighlightView {
 
     Rect mDrawRect;  // in screen space
     private RectF mImageRect;  // in image space
-    RectF  mCropRect;  // in image space
+    RectF mCropRect;  // in image space
     Matrix mMatrix;
 
     private boolean mMaintainAspectRatio = false;
@@ -447,7 +452,7 @@ class HighlightView {
     private Drawable mResizeDrawableHeight;
     private Drawable mResizeDrawableDiagonal;
 
-    private final Paint mFocusPaint   = new Paint();
+    private final Paint mFocusPaint = new Paint();
     private final Paint mNoFocusPaint = new Paint();
     private final Paint mOutlinePaint = new Paint();
 }
